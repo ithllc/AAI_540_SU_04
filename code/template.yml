@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MyLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: my-python-packages-layer
+      Description: Python packages layer
+      ContentUri: python/
+      CompatibleRuntimes:
+        - python3.10
+      LicenseInfo: 'Available under the MIT No Attribution license.'
+      RetentionPolicy: RetainAWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MyLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: my-python-packages-layer
+      Description: Python packages layer
+      ContentUri: lambda-layer/
+      CompatibleRuntimes:
+        - python3.10
+      LicenseInfo: 'Available under the MIT No Attribution license.'
+      RetentionPolicy: Retain
+
+  MyLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: my-python-scripts-function
+      CodeUri: lambda-scripts/
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.10
+      Layers:
+        - !Ref MyLambdaLayer
+      Events:
+        S3Trigger:
+          Type: S3
+          Properties:
+            Bucket: !Ref MyS3Bucket
+            Events: s3:ObjectCreated:*
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref MyS3Bucket
+
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-python-scripts-bucket
